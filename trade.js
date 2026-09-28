@@ -86,10 +86,11 @@ const $v = id => parseFloat($('#' + id).value);
 let thb = 0, lock = false;
 
 async function fetchRate() {
-  const one = async s => +(await (await fetch('https://api.binance.com/api/v3/ticker/price?symbol=' + s)).json()).price;
-  try { thb = await one('USDTTHB'); }
-  catch (e) { try { thb = (await one('BTCTHB')) / (await one('BTCUSDT')); } catch (e2) {} }
-  $('#rate').textContent = thb ? 'USDT/THB ' + thb.toFixed(2) + ' (Binance ณ ตอนเปิดหน้า)' : 'ดึงเรทบาทจาก Binance ไม่ได้';
+  const get = async u => (await fetch(u)).json();
+  try { thb = +(await get('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usdt.json')).usdt.thb; }
+  catch (e) { try { thb = +(await get('https://api.exchangerate-api.com/v4/latest/USD')).rates.THB; } catch (e2) { thb = 0; } }
+  if (!(thb > 0)) thb = 0;
+  $('#rate').textContent = thb ? 'USDT/THB ' + thb.toFixed(2) + ' (ดึงครั้งเดียวตอนเปิดหน้า)' : 'ดึงเรทบาทไม่ได้ จะลองใหม่ตอนเปิดหน้าเหรียญ';
   calc();
 }
 
