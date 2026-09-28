@@ -33,3 +33,13 @@ aside{display:flex;flex-direction:column;gap:10px}
 #msg{color:var(--ac);font-size:13px}
 .prow{padding:8px 0;border-bottom:1px solid var(--ln);font-size:13px}
 @media(max-width:800px){.wrap,#charts{grid-template-columns:1fr}.row{grid-template-columns:60px 56px 90px 1fr 30px}}
+
+fieldset{border:1px solid var(--ln);border-radius:6px;padding:6px 8px;margin:0}
+legend{color:var(--mu);font-size:12px;padding:0 4px}
+.sr{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+select{width:100%;background:var(--pn);color:var(--tx);border:1px solid var(--ln);border-radius:6px;padding:6px 8px;font:inherit}
+#calcRes{background:var(--pn);border-radius:6px;padding:6px 10px;font-size:13px}
+#calcRes:empty{display:none}
+.rr{display:flex;justify-content:space-between;gap:8px;padding:2px 0}
+.warn{color:var(--ac)}
+#rate{color:var(--mu);font-size:12px}

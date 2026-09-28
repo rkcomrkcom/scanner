@@ -29,9 +29,18 @@
     <aside>
       <label>มาร์จิ้น (USDT)<input id="mg" type="number" value="100"></label>
       <label>Leverage<input id="lv" type="number" value="10"></label>
-      <label>TP (ราคา)<input id="tp" type="number" step="any"></label>
-      <label>SL (ราคา)<input id="sl" type="number" step="any"></label>
-      <div class="go"><button class="LONG" id="bl">Long</button><button class="SHORT" id="bs">Short</button></div>
+      <label>ทิศทาง<select id="ty"><option value="LONG">Long</option><option value="SHORT">Short</option></select></label>
+      <fieldset><legend>TP เป้ากำไร (กรอกอันไหนก็ได้)</legend><div class="sr">
+        <label>ราคา<input id="e-price" type="number" step="any"></label>
+        <label>%<input id="e-pct" type="number" step="any"></label>
+        <label>Points<input id="e-pts" type="number" step="any"></label></div></fieldset>
+      <fieldset><legend>SL จุดตัดขาดทุน (กรอกอันไหนก็ได้)</legend><div class="sr">
+        <label>ราคา<input id="sl-price" type="number" step="any"></label>
+        <label>%<input id="sl-pct" type="number" step="any"></label>
+        <label>Points<input id="sl-pts" type="number" step="any"></label></div></fieldset>
+      <div id="calcRes"></div>
+      <div id="rate"></div>
+      <div class="go"><button class="LONG" id="go">เข้าออเดอร์ Long</button></div>
       <div id="msg"></div>
       <div class="posbox"></div>
     </aside>

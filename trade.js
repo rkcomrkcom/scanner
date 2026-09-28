@@ -5,8 +5,10 @@ const FEE = 0.0005;
 let cur = null, px = {};
 const msg = t => $('#msg').textContent = t;
 
-function openCoin(sym) {
+function openCoin(sym, dir) {
   cur = sym; msg('');
+  $('#ty').value = dir === 'SHORT' ? 'SHORT' : 'LONG';
+  ['e', 'sl'].forEach(k => ['price', 'pct', 'pts'].forEach(s => $('#' + k + '-' + s).value = ''));
   $('#coin').hidden = false; $('#cname').textContent = sym;
   $('#charts').innerHTML = CH.map((_, i) => `<div id="tv${i}"></div>`).join('');
   CH.forEach((iv, i) => new TradingView.widget({
@@ -17,7 +19,7 @@ function openCoin(sym) {
 }
 
 function place(side) {
-  const p = px[cur], m = +$('#mg').value, lv = +$('#lv').value, tp = +$('#tp').value || 0, sl = +$('#sl').value || 0;
+  const p = px[cur], m = +$('#mg').value, lv = +$('#lv').value, tp = +$('#e-price').value || 0, sl = +$('#sl-price').value || 0;
   if (!p || !(m > 0) || !(lv >= 1)) return msg('กรอกมาร์จิ้นและ Leverage ให้ถูกต้อง');
   const fee = m * lv * FEE;
   if (m + fee > S.bal) return msg('เงินในพอร์ตไม่พอ');
@@ -51,7 +53,7 @@ async function tick() {
       else if (o.sl && (L ? p <= o.sl : p >= o.sl)) close(o.id, 'SL', o.sl);
       else if (o.tp && (L ? p >= o.tp : p <= o.tp)) close(o.id, 'TP', o.tp);
     });
-    draw();
+    draw(); calcTick();
   } catch (e) {}
 }
 
@@ -73,8 +75,63 @@ function draw() {
 document.addEventListener('click', e => {
   const c = e.target.dataset.c; if (c) { close(c); draw(); }
 });
-$('#bl').onclick = () => place('LONG');
-$('#bs').onclick = () => place('SHORT');
+$('#go').onclick = () => place($('#ty').value);
 $('#back').onclick = () => { $('#coin').hidden = true; cur = null; $('#charts').innerHTML = ''; };
 $('#reset').onclick = () => { if (confirm('รีเซ็ตพอร์ตและลบออเดอร์ทั้งหมด?')) { S.bal = 10000; S.pos = []; S.hist = []; save(); draw(); } };
 setInterval(tick, 3000); tick(); draw();
+
+/* ---------- Calculator ---------- */
+const $v = id => parseFloat($('#' + id).value);
+let thb = 0, lock = false;
+
+async function fetchRate() {
+  const one = async s => +(await (await fetch('https://api.binance.com/api/v3/ticker/price?symbol=' + s)).json()).price;
+  try { thb = await one('USDTTHB'); }
+  catch (e) { try { thb = (await one('BTCTHB')) / (await one('BTCUSDT')); } catch (e2) {} }
+  $('#rate').textContent = thb ? 'USDT/THB ' + thb.toFixed(2) + ' (Binance, อัปเดตอัตโนมัติ)' : 'ดึงเรทบาทจาก Binance ไม่ได้';
+  calc();
+}
+
+function sync(kind, src) {
+  const en = px[cur]; if (lock || !en) return;
+  lock = true;
+  const d = (kind === 'e' ? 1 : -1) * ($('#ty').value === 'LONG' ? 1 : -1);
+  const P = $('#' + kind + '-price'), C = $('#' + kind + '-pct'), T = $('#' + kind + '-pts');
+  if (src === 'price' && !P.value) { C.value = T.value = ''; }
+  else {
+    const price = src === 'price' ? +P.value : src === 'pct' ? en * (1 + d * +C.value / 100) : en + d * +T.value;
+    if (price > 0) {
+      if (src !== 'price') P.value = +price.toPrecision(6);
+      if (src !== 'pct') C.value = (Math.abs(price - en) / en * 100).toFixed(3);
+      if (src !== 'pts') T.value = +Math.abs(price - en).toPrecision(5);
+    }
+  }
+  lock = false; calc();
+}
+
+function calc() {
+  const L = $('#ty').value === 'LONG';
+  $('#go').className = L ? 'LONG' : 'SHORT';
+  $('#go').textContent = 'เข้าออเดอร์ ' + (L ? 'Long' : 'Short');
+  const en = px[cur], R = $('#calcRes');
+  if (!en) { R.innerHTML = ''; return; }
+  const m = $v('mg') || 0, lv = $v('lv') || 1, size = m * lv, ex = $v('e-price'), sl = $v('sl-price');
+  const fee = size * FEE * 2, pnl = p => (L ? p - en : en - p) / en * size;
+  const usd = v => (v >= 0 ? '+' : '') + v.toFixed(2) + ' USDT' + (thb ? ' (' + (v * thb).toFixed(0) + ' ฿)' : '');
+  const row = (a, b, c) => `<div class="rr"><span>${a}</span><b class="${c || ''}">${b}</b></div>`;
+  const liq = en * (L ? 1 - 1 / lv + 0.005 : 1 + 1 / lv - 0.005);
+  let h = row('Entry (ราคาสด)', en) + row('Position size', size.toFixed(2) + ' USDT')
+    + row('ค่าธรรมเนียมเข้า+ออก', '-' + fee.toFixed(2) + ' USDT') + row('Liq. (ประมาณ)', +liq.toPrecision(6), 'warn');
+  if (ex) { const n = pnl(ex) - fee; h += row('ถึง TP (สุทธิ)', usd(n), n >= 0 ? 'up' : 'dn'); }
+  if (sl) { const n = pnl(sl) - fee; h += row('โดน SL (สุทธิ)', usd(n), 'dn'); }
+  if (ex && sl) { const rr = Math.abs(ex - en) / Math.abs(sl - en); h += row('R:R', '1 : ' + rr.toFixed(2), rr >= 2 ? 'up' : rr >= 1 ? 'warn' : 'dn'); }
+  if (sl && (L ? sl <= liq : sl >= liq)) h += '<div class="warn">SL อยู่เลยราคา Liquidation ออเดอร์จะโดน Liq ก่อน</div>';
+  if (m + size * FEE > S.bal) h += '<div class="warn">เงินในพอร์ตจำลองไม่พอสำหรับมาร์จิ้นนี้</div>';
+  R.innerHTML = h;
+}
+function calcTick() { ['e', 'sl'].forEach(k => $('#' + k + '-price').value && sync(k, 'price')); calc(); }
+
+['e', 'sl'].forEach(k => ['price', 'pct', 'pts'].forEach(s => $('#' + k + '-' + s).oninput = () => sync(k, s)));
+['mg', 'lv'].forEach(id => $('#' + id).oninput = calc);
+$('#ty').onchange = calcTick;
+fetchRate(); setInterval(fetchRate, 3e4);
