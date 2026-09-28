@@ -1,0 +1,35 @@
+:root{--bg:#121a26;--pn:#1b2536;--ln:#2b3850;--tx:#e6ebf2;--mu:#8b99b0;--up:#3fb68b;--dn:#e5605b;--ac:#e8b04a;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 "IBM Plex Sans Thai",system-ui,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--ln)}
+h1{font-size:18px;margin:0}h2{font-size:16px}
+button{font:inherit;color:var(--tx);background:var(--pn);border:1px solid var(--ln);border-radius:6px;padding:5px 12px;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--ac)}
+#tfs{display:flex;gap:4px}
+#tfs .on{background:var(--ac);color:#1a1a1a;border-color:var(--ac)}
+#acct{margin-left:auto;color:var(--mu)}
+main,#cfg{padding:12px 16px;max-width:1000px;margin:auto}
+#cfgBody{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:8px}
+label{display:block;color:var(--mu);font-size:13px}
+input{width:100%;background:var(--pn);color:var(--tx);border:1px solid var(--ln);border-radius:6px;padding:6px 8px;font:inherit}
+.row{display:grid;grid-template-columns:70px 64px 100px 1fr 40px;gap:10px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--ln);cursor:pointer}
+.row:hover{background:var(--pn)}
+.row small{grid-column:1/-1;color:var(--mu)}
+.px{display:flex;flex-direction:column}
+.px i{font-style:normal;font-size:13px}
+.sc{color:var(--ac);font-weight:600;text-align:right}
+.tag{border-radius:4px;padding:1px 8px;font-size:13px;text-align:center}
+.LONG{background:var(--up);color:#10151d}
+.SHORT{background:var(--dn);color:#10151d}
+.up{color:var(--up)}.dn{color:var(--dn)}
+#coin{position:fixed;inset:0;background:var(--bg);overflow:auto;z-index:5}
+.bar{display:flex;gap:12px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--ln)}
+.wrap{display:grid;grid-template-columns:1fr 300px;gap:12px;padding:12px}
+#charts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#charts div{height:340px}
+aside{display:flex;flex-direction:column;gap:10px}
+.go{display:flex;gap:8px}
+.go button{flex:1;font-weight:600}
+#msg{color:var(--ac);font-size:13px}
+.prow{padding:8px 0;border-bottom:1px solid var(--ln);font-size:13px}
+@media(max-width:800px){.wrap,#charts{grid-template-columns:1fr}.row{grid-template-columns:60px 56px 90px 1fr 30px}}
