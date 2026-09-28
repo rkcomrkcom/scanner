@@ -7,6 +7,7 @@ const msg = t => $('#msg').textContent = t;
 
 function openCoin(sym, dir) {
   cur = sym; msg('');
+  if (!thb) fetchRate();
   $('#ty').value = dir === 'SHORT' ? 'SHORT' : 'LONG';
   ['e', 'sl'].forEach(k => ['price', 'pct', 'pts'].forEach(s => $('#' + k + '-' + s).value = ''));
   $('#coin').hidden = false; $('#cname').textContent = sym;
@@ -88,7 +89,7 @@ async function fetchRate() {
   const one = async s => +(await (await fetch('https://api.binance.com/api/v3/ticker/price?symbol=' + s)).json()).price;
   try { thb = await one('USDTTHB'); }
   catch (e) { try { thb = (await one('BTCTHB')) / (await one('BTCUSDT')); } catch (e2) {} }
-  $('#rate').textContent = thb ? 'USDT/THB ' + thb.toFixed(2) + ' (Binance, อัปเดตอัตโนมัติ)' : 'ดึงเรทบาทจาก Binance ไม่ได้';
+  $('#rate').textContent = thb ? 'USDT/THB ' + thb.toFixed(2) + ' (Binance ณ ตอนเปิดหน้า)' : 'ดึงเรทบาทจาก Binance ไม่ได้';
   calc();
 }
 
@@ -134,4 +135,4 @@ function calcTick() { ['e', 'sl'].forEach(k => $('#' + k + '-price').value && sy
 ['e', 'sl'].forEach(k => ['price', 'pct', 'pts'].forEach(s => $('#' + k + '-' + s).oninput = () => sync(k, s)));
 ['mg', 'lv'].forEach(id => $('#' + id).oninput = calc);
 $('#ty').onchange = calcTick;
-fetchRate(); setInterval(fetchRate, 3e4);
+fetchRate();
