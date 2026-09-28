@@ -42,7 +42,9 @@ function close(id, why, at) {
 
 async function tick() {
   try {
-    (await j('/fapi/v1/ticker/price')).forEach(x => px[x.symbol] = +x.price);
+    const n = {}; (await j('/fapi/v1/ticker/price')).forEach(x => n[x.symbol] = +x.price);
+    if (Object.keys(n).length > 100) S.pos.slice().forEach(o => { if (!(o.sym in n) && px[o.sym]) close(o.id, 'Delisted', px[o.sym]); });
+    px = n;
     S.pos.slice().forEach(o => {
       const p = px[o.sym], L = o.side === 'LONG'; if (!p) return;
       if (L ? p <= o.liq : p >= o.liq) close(o.id, 'Liquidated', o.liq);
