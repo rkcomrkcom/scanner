@@ -90,7 +90,7 @@ async function fetchRate() {
   try { thb = +(await get('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usdt.json')).usdt.thb; }
   catch (e) { try { thb = +(await get('https://api.exchangerate-api.com/v4/latest/USD')).rates.THB; } catch (e2) { thb = 0; } }
   if (!(thb > 0)) thb = 0;
-  $('#rate').textContent = thb ? 'USDT/THB ' + thb.toFixed(2) + ' (ดึงครั้งเดียวตอนเปิดหน้า)' : 'ดึงเรทบาทไม่ได้ จะลองใหม่ตอนเปิดหน้าเหรียญ';
+  $('#rate').textContent = thb ? 'USDT/THB ' + thb.toFixed(2) + ' (บาท)' : 'ดึงเรทบาทไม่ได้ จะลองใหม่ตอนเปิดหน้าเหรียญ';
   calc();
 }
 
