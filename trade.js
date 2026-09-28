@@ -1,6 +1,6 @@
 const S = JSON.parse(localStorage.paper || '{"bal":10000,"pos":[],"hist":[]}');
 const save = () => localStorage.paper = JSON.stringify(S);
-const CH = ['60', '15', '5', '1'];
+const CH = ['240', '60', '5', '1'];
 const FEE = 0.0005;
 let cur = null, px = {};
 const msg = t => $('#msg').textContent = t;
